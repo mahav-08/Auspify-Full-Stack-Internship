@@ -1,104 +1,128 @@
 
-const studentForm = document.getElementById("studentForm");
-const studentList = document.getElementById("studentList");
+const expenseForm = document.getElementById("expenseForm");
+const transactionList = document.getElementById("transactionList");
 
-let editingStudentId = null;
+const totalIncome = document.getElementById("totalIncome");
+const totalExpense = document.getElementById("totalExpense");
+const balance = document.getElementById("balance");
 
-// Display all students
-async function displayStudents() {
-    const response = await fetch("/api/students");
-    const students = await response.json();
+const API_URL = "http://localhost:3001/api/transactions";
 
-    studentList.innerHTML = "";
+// Load transactions
+async function loadTransactions() {
+    try {
+        const response = await fetch(API_URL);
+        const transactions = await response.json();
 
-    students.forEach(student => {
+        displayTransactions(transactions);
+        updateSummary(transactions);
+    } catch (error) {
+        console.error("Error loading transactions:", error);
+    }
+}
+
+// Display transactions
+function displayTransactions(transactions) {
+    transactionList.innerHTML = "";
+
+    transactions.forEach(transaction => {
         const row = document.createElement("tr");
 
-        [student.name, student.roll, student.department, student.email]
-            .forEach(value => {
-                const cell = document.createElement("td");
-                cell.textContent = value;
-                row.appendChild(cell);
-            });
+        const values = [
+            transaction.title,
+            "₹" + Number(transaction.amount).toFixed(2),
+            transaction.type,
+            transaction.category,
+            transaction.date
+        ];
+
+        values.forEach(value => {
+            const cell = document.createElement("td");
+            cell.textContent = value;
+            row.appendChild(cell);
+        });
 
         const actionCell = document.createElement("td");
 
-        const editButton = document.createElement("button");
-        editButton.textContent = "Edit";
-
-        editButton.onclick = function() {
-            editingStudentId = student.id;
-
-            document.getElementById("studentName").value = student.name;
-            document.getElementById("studentRoll").value = student.roll;
-            document.getElementById("studentDepartment").value = student.department;
-            document.getElementById("studentEmail").value = student.email;
-
-            studentForm.querySelector("button[type='submit']").textContent = "Update Student";
-        };
-
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "Delete";
+        deleteButton.onclick = () => deleteTransaction(transaction.id);
 
-        deleteButton.onclick = async function() {
-            if (confirm("Are you sure you want to delete this student?")) {
-                await fetch(`/api/students/${student.id}`, {
-                    method: "DELETE"
-                });
-
-                alert("Student deleted successfully!");
-                displayStudents();
-            }
-        };
-
-        actionCell.appendChild(editButton);
         actionCell.appendChild(deleteButton);
         row.appendChild(actionCell);
 
-        studentList.appendChild(row);
+        transactionList.appendChild(row);
     });
 }
 
-// Add or update student
-studentForm.addEventListener("submit", async function(event) {
-    event.preventDefault();
+// Update income, expense and balance
+function updateSummary(transactions) {
+    let income = 0;
+    let expense = 0;
 
-    const student = {
-        name: document.getElementById("studentName").value.trim(),
-        roll: document.getElementById("studentRoll").value.trim(),
-        department: document.getElementById("studentDepartment").value.trim(),
-        email: document.getElementById("studentEmail").value.trim()
-    };
-
-    const url = editingStudentId
-        ? `/api/students/${editingStudentId}`
-        : "/api/students";
-
-    const method = editingStudentId ? "PUT" : "POST";
-
-    const response = await fetch(url, {
-        method: method,
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(student)
+    transactions.forEach(transaction => {
+        if (transaction.type === "income") {
+            income += Number(transaction.amount);
+        } else {
+            expense += Number(transaction.amount);
+        }
     });
 
-    const result = await response.json();
+    totalIncome.textContent = "₹" + income.toFixed(2);
+    totalExpense.textContent = "₹" + expense.toFixed(2);
+    balance.textContent = "₹" + (income - expense).toFixed(2);
+}
 
-    if (!response.ok) {
-        alert(result.message);
-        return;
+// Add transaction
+expenseForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const transaction = {
+        title: document.getElementById("title").value,
+        amount: document.getElementById("amount").value,
+        type: document.getElementById("type").value,
+        category: document.getElementById("category").value,
+        date: document.getElementById("date").value
+    };
+
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(transaction)
+        });
+
+        if (!response.ok) {
+            throw new Error("Unable to add transaction");
+        }
+
+        expenseForm.reset();
+        loadTransactions();
+
+    } catch (error) {
+        alert("Unable to add transaction. Please check the server.");
     }
-
-    alert(editingStudentId ? "Student updated successfully!" : "Student added successfully!");
-
-    editingStudentId = null;
-    studentForm.reset();
-    studentForm.querySelector("button[type='submit']").textContent = "Add Student";
-
-    displayStudents();
 });
 
-// Load students when page opens
-displayStudents();
+// Delete transaction
+async function deleteTransaction(id) {
+    try {
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: "DELETE"
+        });
+
+        if (!response.ok) {
+            throw new Error("Unable to delete transaction");
+        }
+
+        loadTransactions();
+
+    } catch (error) {
+        alert("Unable to delete transaction.");
+    }
+}
+
+// Load data when page opens
+loadTransactions();

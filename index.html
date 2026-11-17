@@ -4,55 +4,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Management System</title>
+    <title>Expense Tracker</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <header>
-        <h1>Student Management System</h1>
-        <p>Manage Student Records Easily</p>
-    </header>
+    <div class="container">
 
-    <main class="container">
-        <section class="form-section">
-            <h2>Add Student</h2>
+        <h1>Expense Tracker</h1>
+        <p>Manage your income and expenses easily.</p>
 
-            <form id="studentForm">
-                <input type="text" id="studentName"
-                    placeholder="Enter Student Name" required>
+        <div class="summary">
 
-                <input type="text" id="studentRoll"
-                    placeholder="Enter Roll Number" required>
+            <div class="card">
+                <h3>Total Income</h3>
+                <h2 id="totalIncome">₹0.00</h2>
+            </div>
 
-                <input type="text" id="studentDepartment"
-                    placeholder="Enter Department" required>
+            <div class="card">
+                <h3>Total Expense</h3>
+                <h2 id="totalExpense">₹0.00</h2>
+            </div>
 
-                <input type="email" id="studentEmail"
-                    placeholder="Enter Email" required>
+            <div class="card">
+                <h3>Balance</h3>
+                <h2 id="balance">₹0.00</h2>
+            </div>
 
-                <button type="submit">Add Student</button>
-            </form>
-        </section>
+        </div>
 
-        <section class="table-section">
-            <h2>Student Records</h2>
+        <h2>Add Transaction</h2>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Roll Number</th>
-                        <th>Department</th>
-                        <th>Email</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="studentList">
-                </tbody>
-            </table>
-        </section>
-    </main>
+        <form id="expenseForm">
+
+            <input
+                type="text"
+                id="title"
+                placeholder="Transaction Title"
+                required
+            >
+
+            <input
+                type="number"
+                id="amount"
+                placeholder="Amount"
+                min="0.01"
+                step="0.01"
+                required
+            >
+
+            <select id="type" required>
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+            </select>
+
+            <input
+                type="text"
+                id="category"
+                placeholder="Category"
+                required
+            >
+
+            <input
+                type="date"
+                id="date"
+                required
+            >
+
+            <button type="submit">Add Transaction</button>
+
+        </form>
+
+        <h2>Transaction History</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Amount</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="transactionList">
+            </tbody>
+        </table>
+
+    </div>
 
     <script src="script.js"></script>
 
