@@ -4,98 +4,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Tracker</title>
+    <title>MahaKart - Online Shopping</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="container">
+    <header>
+        <h1>🛍️ MahaKart</h1>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#products">Products</a>
+            <a href="#cart">Cart</a>
+            <a href="#account">Account</a>
+        </nav>
+    </header>
 
-        <h1>Expense Tracker</h1>
-        <p>Manage your income and expenses easily.</p>
+    <section class="welcome">
+        <h2>Welcome to MahaKart!</h2>
+        <p>Your favourite products, all in one place.</p>
+    </section>
 
-        <div class="summary">
+    <main>
+        <section id="products">
+            <h2>Our Products</h2>
+            <div id="productList" class="product-list"></div>
+        </section>
 
-            <div class="card">
-                <h3>Total Income</h3>
-                <h2 id="totalIncome">₹0.00</h2>
-            </div>
+        <section id="cart">
+            <h2>Shopping Cart</h2>
+            <div id="cartItems"></div>
+            <h3>Total: ₹<span id="cartTotal">0</span></h3>
+            <button id="checkoutBtn">Place Order</button>
+        </section>
 
-            <div class="card">
-                <h3>Total Expense</h3>
-                <h2 id="totalExpense">₹0.00</h2>
-            </div>
+        <section id="account">
+    <h2>My Account</h2>
+    <h3>My Order History</h3>
+<button id="viewOrdersBtn">View My Orders</button>
+<div id="orderHistory"></div>
 
-            <div class="card">
-                <h3>Balance</h3>
-                <h2 id="balance">₹0.00</h2>
-            </div>
 
-        </div>
+    <h3>Register</h3>
+    <form id="registerForm">
+        <input type="text" id="registerName"
+            placeholder="Your Name" required>
 
-        <h2>Add Transaction</h2>
+        <input type="email" id="registerEmail"
+            placeholder="Email Address" required>
 
-        <form id="expenseForm">
+        <input type="password" id="registerPassword"
+            placeholder="Password" required>
 
-            <input
-                type="text"
-                id="title"
-                placeholder="Transaction Title"
-                required
-            >
+        <button type="submit">Register</button>
+    </form>
 
-            <input
-                type="number"
-                id="amount"
-                placeholder="Amount"
-                min="0.01"
-                step="0.01"
-                required
-            >
+    <h3>Login</h3>
+    <form id="loginForm">
+        <input type="email" id="loginEmail"
+            placeholder="Email Address" required>
 
-            <select id="type" required>
-                <option value="expense">Expense</option>
-                <option value="income">Income</option>
-            </select>
+        <input type="password" id="loginPassword"
+            placeholder="Password" required>
 
-            <input
-                type="text"
-                id="category"
-                placeholder="Category"
-                required
-            >
+        <button type="submit">Login</button>
+    </form>
 
-            <input
-                type="date"
-                id="date"
-                required
-            >
+    <p id="accountMessage"></p>
+</section>
+    </main>
 
-            <button type="submit">Add Transaction</button>
-
-        </form>
-
-        <h2>Transaction History</h2>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Amount</th>
-                    <th>Type</th>
-                    <th>Category</th>
-                    <th>Date</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-
-            <tbody id="transactionList">
-            </tbody>
-        </table>
-
-    </div>
+    <footer>
+        <p>© 2026 MahaKart. All Rights Reserved.</p>
+    </footer>
 
     <script src="script.js"></script>
-
 </body>
 </html>

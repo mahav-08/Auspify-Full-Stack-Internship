@@ -1,128 +1,183 @@
+let products = [];
+let cart = [];
 
-const expenseForm = document.getElementById("expenseForm");
-const transactionList = document.getElementById("transactionList");
+const productList = document.getElementById("productList");
+const cartItems = document.getElementById("cartItems");
+const cartTotal = document.getElementById("cartTotal");
 
-const totalIncome = document.getElementById("totalIncome");
-const totalExpense = document.getElementById("totalExpense");
-const balance = document.getElementById("balance");
-
-const API_URL = "http://localhost:3001/api/transactions";
-
-// Load transactions
-async function loadTransactions() {
+async function loadProducts() {
     try {
-        const response = await fetch(API_URL);
-        const transactions = await response.json();
-
-        displayTransactions(transactions);
-        updateSummary(transactions);
+        const response = await fetch("/api/products");
+        products = await response.json();
+        displayProducts();
     } catch (error) {
-        console.error("Error loading transactions:", error);
+        productList.textContent = "Unable to load products.";
     }
 }
 
-// Display transactions
-function displayTransactions(transactions) {
-    transactionList.innerHTML = "";
+function displayProducts() {
+    productList.innerHTML = "";
 
-    transactions.forEach(transaction => {
-        const row = document.createElement("tr");
+    products.forEach(product => {
+        const card = document.createElement("div");
+        card.className = "product-card";
 
-        const values = [
-            transaction.title,
-            "₹" + Number(transaction.amount).toFixed(2),
-            transaction.type,
-            transaction.category,
-            transaction.date
-        ];
+        card.innerHTML = `
+            <h1>🛍️</h1>
+            <h3>${product.name}</h3>
+            <p>Category: ${product.category}</p>
+            <p>Price: ₹${product.price}</p>
+            <button onclick="addToCart(${product.id})">
+                Add to Cart
+            </button>
+        `;
 
-        values.forEach(value => {
-            const cell = document.createElement("td");
-            cell.textContent = value;
-            row.appendChild(cell);
-        });
-
-        const actionCell = document.createElement("td");
-
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete";
-        deleteButton.onclick = () => deleteTransaction(transaction.id);
-
-        actionCell.appendChild(deleteButton);
-        row.appendChild(actionCell);
-
-        transactionList.appendChild(row);
+        productList.appendChild(card);
     });
 }
 
-// Update income, expense and balance
-function updateSummary(transactions) {
-    let income = 0;
-    let expense = 0;
+function addToCart(productId) {
+    const product = products.find(item => item.id === productId);
+    const existingItem = cart.find(item => item.id === productId);
 
-    transactions.forEach(transaction => {
-        if (transaction.type === "income") {
-            income += Number(transaction.amount);
-        } else {
-            expense += Number(transaction.amount);
-        }
-    });
+    if (existingItem) {
+        existingItem.quantity++;
+    } else {
+        cart.push({ ...product, quantity: 1 });
+    }
 
-    totalIncome.textContent = "₹" + income.toFixed(2);
-    totalExpense.textContent = "₹" + expense.toFixed(2);
-    balance.textContent = "₹" + (income - expense).toFixed(2);
+    displayCart();
 }
 
-// Add transaction
-expenseForm.addEventListener("submit", async function(event) {
-    event.preventDefault();
+function displayCart() {
+    cartItems.innerHTML = "";
+    let total = 0;
 
-    const transaction = {
-        title: document.getElementById("title").value,
-        amount: document.getElementById("amount").value,
-        type: document.getElementById("type").value,
-        category: document.getElementById("category").value,
-        date: document.getElementById("date").value
-    };
+    cart.forEach(item => {
+        total += item.price * item.quantity;
+
+        const element = document.createElement("p");
+        element.textContent =
+            `${item.name} - ₹${item.price} × ${item.quantity}`;
+
+        cartItems.appendChild(element);
+    });
+
+    cartTotal.textContent = total;
+}
+
+document.getElementById("checkoutBtn").addEventListener("click", async () => {
+    if (cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+    }
 
     try {
-        const response = await fetch(API_URL, {
+        const response = await fetch("/api/orders", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(transaction)
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                items: cart.map(item => ({
+                    id: item.id,
+                    quantity: item.quantity
+                }))
+            })
         });
 
+        const result = await response.json();
+
         if (!response.ok) {
-            throw new Error("Unable to add transaction");
+            alert(result.message);
+            return;
         }
 
-        expenseForm.reset();
-        loadTransactions();
+        alert("Order placed successfully! Order ID: " + result.order.id);
+
+        cart = [];
+        displayCart();
 
     } catch (error) {
-        alert("Unable to add transaction. Please check the server.");
+        alert("Unable to place order. Please try again.");
     }
 });
 
-// Delete transaction
-async function deleteTransaction(id) {
-    try {
-        const response = await fetch(`${API_URL}/${id}`, {
-            method: "DELETE"
-        });
+loadProducts();
+displayCart();
 
-        if (!response.ok) {
-            throw new Error("Unable to delete transaction");
+// User Registration
+document.getElementById("registerForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const name = document.getElementById("registerName").value;
+    const email = document.getElementById("registerEmail").value;
+    const password = document.getElementById("registerPassword").value;
+
+    const response = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password })
+    });
+
+    const result = await response.json();
+    document.getElementById("accountMessage").textContent = result.message;
+
+    if (response.ok) {
+        this.reset();
+    }
+});
+
+// User Login
+document.getElementById("loginForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+
+    const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+    });
+
+    const result = await response.json();
+    document.getElementById("accountMessage").textContent = result.message;
+
+    if (response.ok) {
+        this.reset();
+    }
+});
+// View Order History
+document.getElementById("viewOrdersBtn").addEventListener("click", async function () {
+    try {
+        const response = await fetch("/api/orders");
+        const orders = await response.json();
+
+        const orderHistory = document.getElementById("orderHistory");
+        orderHistory.innerHTML = "";
+
+        if (orders.length === 0) {
+            orderHistory.textContent = "No orders found.";
+            return;
         }
 
-        loadTransactions();
+        orders.forEach(order => {
+            const orderDiv = document.createElement("div");
+
+            orderDiv.innerHTML = `
+                <h3>Order ID: ${order.id}</h3>
+                <p>Total: ₹${order.total}</p>
+                <p>Date: ${new Date(order.date).toLocaleString()}</p>
+                <h4>Products:</h4>
+                ${order.items.map(item =>
+                    `<p>${item.productName} - ₹${item.price} × ${item.quantity}</p>`
+                ).join("")}
+                <hr>
+            `;
+
+            orderHistory.appendChild(orderDiv);
+        });
 
     } catch (error) {
-        alert("Unable to delete transaction.");
+        alert("Unable to load order history.");
     }
-}
-
-// Load data when page opens
-loadTransactions();
+});
