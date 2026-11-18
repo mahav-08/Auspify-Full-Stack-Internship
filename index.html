@@ -4,48 +4,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JobConnect - Job Portal</title>
+    <title>LearnHub | Learning Management System</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header>
-        <h1>JobConnect</h1>
         <nav>
-            <a href="#home">Home</a>
-            <a href="#jobs">Find Jobs</a>
-            <a href="#about">About</a>
-            <a href="#contact">Contact</a>
+            <h2>LearnHub</h2>
+            <div>
+                <a href="#home">Home</a>
+                <a href="courses.html">Courses</a>
+                <a href="#about">About</a>
+                <a href="contact.html">Contact</a>
+                <a href="register.html">Register</a>
+                <a href="login.html">Login</a>
+                <a href="admin.html">Admin</a>
+            </div>
         </nav>
     </header>
 
-    <section id="home" class="hero">
-        <h2>Find Your Dream Job Today!</h2>
-        <p>Discover opportunities and build your future.</p>
+    <section class="hero" id="home">
+        <h1>Welcome to LearnHub</h1>
+        <p>Learn New Skills, Build Your Future!</p>
+        <button onclick="showMessage()">Explore Courses</button>
+    </section>
 
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search job title...">
-            <button onclick="searchJobs()">Search</button>
+    <section id="courses">
+        <h2>Popular Courses</h2>
+        <div id="courseList">
+            <p>Courses will appear here.</p>
         </div>
     </section>
 
-    <section id="jobs">
-        <h2>Latest Job Opportunities</h2>
-        <div id="jobList" class="job-container"></div>
-    </section>
-
     <section id="about">
-        <h2>About JobConnect</h2>
-        <p>JobConnect helps job seekers discover exciting career opportunities.</p>
+        <h2>About LearnHub</h2>
+        <p>LearnHub is an online learning platform where students can explore courses and improve their skills.</p>
     </section>
 
     <section id="contact">
         <h2>Contact Us</h2>
-        <p>Email: support@jobconnect.com</p>
+        <p>Email: learnhub@example.com</p>
     </section>
 
     <footer>
-        <p>&copy; 2026 JobConnect. All Rights Reserved.</p>
+        <p>© 2026 LearnHub. All Rights Reserved.</p>
     </footer>
 
     <script src="script.js"></script>

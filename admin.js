@@ -1,36 +1,61 @@
 
-const jobForm = document.getElementById("jobForm");
+const courseForm = document.getElementById("courseForm");
 
-jobForm.addEventListener("submit", async function(event) {
-    event.preventDefault();
+const adminCourseList = document.getElementById("adminCourseList");
 
-    const jobData = {
-        title: document.getElementById("title").value.trim(),
-        company: document.getElementById("company").value.trim(),
-        location: document.getElementById("location").value.trim(),
-        salary: document.getElementById("salary").value.trim()
-    };
+let courses = JSON.parse(localStorage.getItem("courses")) || [
+    "Python Programming",
+    "Web Development",
+    "Java Programming",
+    "Data Science",
+    "Machine Learning",
+    "Database Management"
+];
 
-    try {
-        const response = await fetch("/api/jobs", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(jobData)
+function displayCourses() {
+    adminCourseList.innerHTML = "";
+
+    courses.forEach(function(course, index) {
+        const courseCard = document.createElement("div");
+
+        courseCard.className = "course-card";
+        courseCard.textContent = course;
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+
+        deleteButton.addEventListener("click", function() {
+            courses.splice(index, 1);
+
+            localStorage.setItem("courses", JSON.stringify(courses));
+
+            displayCourses();
         });
 
-        const result = await response.json();
+        courseCard.appendChild(deleteButton);
+        adminCourseList.appendChild(courseCard);
+    });
+}
 
-        document.getElementById("message").textContent =
-            result.message;
+courseForm.addEventListener("submit", function(event) {
+    event.preventDefault();
 
-        if (response.ok) {
-            jobForm.reset();
-        }
+    const courseName = document.getElementById("courseName").value.trim();
 
-    } catch (error) {
-        document.getElementById("message").textContent =
-            "Unable to add job. Please try again.";
+    if (courseName === "") {
+        return;
     }
+
+    courses.push(courseName);
+
+    localStorage.setItem("courses", JSON.stringify(courses));
+
+    document.getElementById("adminMessage").textContent =
+        "Course added successfully!";
+
+    courseForm.reset();
+
+    displayCourses();
 });
+
+displayCourses();

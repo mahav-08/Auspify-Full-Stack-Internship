@@ -1,80 +1,54 @@
 
-let jobs = [];
-
-async function loadJobs() {
-    try {
-        const response = await fetch("/api/jobs");
-        jobs = await response.json();
-
-        displayJobs(jobs);
-    } catch (error) {
-        console.error("Error loading jobs:", error);
-    }
-}
-
-function displayJobs(jobArray) {
-    const jobList = document.getElementById("jobList");
-
-    jobList.innerHTML = "";
-
-    if (jobArray.length === 0) {
-        jobList.innerHTML = "<p>No jobs found!</p>";
-        return;
-    }
-
-    jobArray.forEach(job => {
-        jobList.innerHTML += `
-            <div class="job-card">
-                <h3>${job.title}</h3>
-                <p><strong>Company:</strong> ${job.company}</p>
-                <p><strong>Location:</strong> ${job.location}</p>
-                <p><strong>Salary:</strong> ${job.salary}</p>
-                <button onclick="applyJob(${job.id})">
-                    Apply Now
-                </button>
-            </div>
-        `;
+function showMessage() {
+    document.getElementById("courses").scrollIntoView({
+        behavior: "smooth"
     });
 }
 
-function searchJobs() {
-    const searchValue = document
-        .getElementById("searchInput")
-        .value.toLowerCase();
+const courses = JSON.parse(localStorage.getItem("courses")) || [
+    "Python Programming",
+    "Web Development",
+    "Java Programming",
+    "Data Science",
+    "Machine Learning",
+    "Database Management"
+];
 
-    const filteredJobs = jobs.filter(job =>
-        job.title.toLowerCase().includes(searchValue)
-    );
 
-    displayJobs(filteredJobs);
-}
+const courseList = document.getElementById("courseList");
+courseList.innerHTML = "";
 
-async function applyJob(jobId) {
-    const applicantName = prompt("Enter your name:");
-    if (!applicantName || !applicantName.trim()) return;
+courses.forEach(function(course) {
+    const courseCard = document.createElement("div");
+    courseCard.className = "course-card";
 
-    const email = prompt("Enter your email:");
-    if (!email || !email.trim()) return;
+    const courseTitle = document.createElement("h3");
+    courseTitle.textContent = course;
 
-    try {
-        const response = await fetch("/api/applications", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                job_id: jobId,
-                applicant_name: applicantName,
-                email: email
-            })
-        });
+    const enrollButton = document.createElement("button");
+    enrollButton.textContent = "Enroll Now";
 
-        const result = await response.json();
+    enrollButton.addEventListener("click", function() {
+        let enrolledCourses = JSON.parse(
+            localStorage.getItem("enrolledCourses")
+        ) || [];
 
-        alert(result.message);
-    } catch (error) {
-        alert("Application failed. Please try again.");
-    }
-}
+        if (!enrolledCourses.includes(course)) {
+            enrolledCourses.push(course);
 
-loadJobs();
+            localStorage.setItem(
+                "enrolledCourses",
+                JSON.stringify(enrolledCourses)
+            );
+
+            alert("Successfully enrolled in " + course);
+        } else {
+            alert("You are already enrolled in this course!");
+        }
+    });
+
+    courseCard.appendChild(courseTitle);
+    courseCard.appendChild(enrollButton);
+
+    courseList.appendChild(courseCard);
+});
